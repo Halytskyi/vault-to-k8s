@@ -1,0 +1,70 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vault-to-k8s
+  labels:
+    app.kubernetes.io/name: vault-to-k8s
+  namespace: vault-to-k8s
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vault-to-k8s
+  template:
+    metadata:
+      name: vault-to-k8s
+      labels:
+        app.kubernetes.io/name: vault-to-k8s
+    spec:
+      serviceAccountName: vault-to-k8s
+      containers:
+      - name: vault-to-k8s
+        image: vault-to-k8s
+        ports:
+        - name: prometheus
+          containerPort: 9703
+        env:
+        - name: VAULT_NAMESPACE
+          value: "my-vault-namespace"
+        - name: VAULT_ADDR
+          value: "https://vault.url.net"
+        - name: AUTH_METHOD
+          value: "approle"
+        - name: APPROLE_ROLE_ID
+          valueFrom:
+            secretKeyRef:
+              name: vault-to-k8s
+              key: approle-role-id
+        - name: APPROLE_SECRET_ID_WRAPPED_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: vault-to-k8s
+              key: approle-wrapped-secret-id
+        - name: TOKEN_ROTATION_INTERVAL
+          value: "86400"
+        - name: APPROLE_SECRETID_ROTATION_INTERVAL
+          value: "2630000"
+        - name: DEBUG
+          value: "true"
+        - name: SYNC_INTERVAL
+          value: "60"
+        - name: K8S_CLUSTER_NAME
+          value: "my-k8s-cluster"
+        - name: SECRETS_PATH_VAULT
+          value: "mydir/k8s/dev"
+        - name: NON_VERSIONING_NAMESPACES
+          value: ""
+        resources:
+          requests:
+            cpu: 0.5
+            memory: 512Mi
+          limits:
+            cpu: 1
+            memory: 1Gi
+        livenessProbe:
+          httpGet:
+            path: /metrics
+            port: 9703
+          initialDelaySeconds: 5
+          periodSeconds: 30

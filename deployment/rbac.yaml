@@ -1,0 +1,31 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: vault-to-k8s
+  namespace: vault-to-k8s
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - get
+  - list
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: vault-to-k8s
+  labels:
+    app: vault-to-k8s
+  namespace: vault-to-k8s
+subjects:
+- kind: ServiceAccount
+  name: vault-to-k8s
+  namespace: vault-to-k8s
+roleRef:
+  kind: ClusterRole
+  name: vault-to-k8s
+  apiGroup: ""

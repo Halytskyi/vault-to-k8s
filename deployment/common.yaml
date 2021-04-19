@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vault-to-k8s
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vault-to-k8s
+  labels:
+    app: vault-to-k8s
+  namespace: vault-to-k8s
